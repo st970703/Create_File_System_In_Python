@@ -9,6 +9,7 @@
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
+.idea/*
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
@@ -160,5 +161,6 @@ ENV/
 /site
 
 # End of https://www.gitignore.io/api/python,pycharm+all
+.idea/workspace.xml
 .idea/workspace.xml
 .idea/workspace.xml
