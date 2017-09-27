@@ -18,25 +18,47 @@ total 0
 -rw-rw-r-- 1 st970703 st970703   3001 Sep 14 05:31 onethousand
 -rw-rw-r-- 1 st970703 st970703   6001 Sep 14 05:31 twothousand
 
-The files are listed when 'ls -l' is run.
+The source file system is mounted onto a directory.
+
+The files are mounted into the mount folder after 'ls -l' is run
 After 'python a2fuse1.py source mount' is run, 
 The files in source directory is copied into mount directory.
 
+The a2fuse1.py is a handler program linked to the libfuse library.
+It specifies mounting and how read/write/stat requests are responded.
+At the time the file system is mounted, the handler is registered with the kernel.
+
+If a user now issues read/write/stat requests for this newly mounted file system, the kernel forwards these IO-requests to the handler and then sends the handler's response back to the user.
+
+The file system here is a virtual file system.
+
+A virtual file system is an abstraction layer on top of a more concrete file system. It acts as a view or translation of an existing file system or storage device.
+
 Question 2
-cat oneten:
-DEBUG:A2:-> path:/oneten getattr(None,)
-DEBUG:A2:-> path:/oneten open(32768,)
-DEBUG:A2:-> path:/oneten read(4096L, 0, 4L)
-DEBUG:A2:-> path:/oneten getattr(None,)
-DEBUG:A2:-> path:/oneten flush(4L,)
-DEBUG:A2:-> path:/oneten release(4L,)
-DEBUG:A2:-> path:/ getattr(None,)
+cat oneten
+DEBUG:fuse.log-mixin:-> getattr / (None,)
+DEBUG:fuse.log-mixin:<- getattr {'st_ctime': 1506549172.211756, 'st_mtime': 1506549172.211756, 'st_nlink': 2, 'st_mode': 16893, 'st_size': 4096, 'st_gid': 1000, 'st_uid': 1000, 'st_atime': 1506549172.2197568}
+DEBUG:fuse.log-mixin:-> access / (1,)
+DEBUG:fuse.log-mixin:<- access None
+DEBUG:fuse.log-mixin:-> getattr /oneten (None,)
+DEBUG:fuse.log-mixin:<- getattr {'st_ctime': 1506549163.5910938, 'st_mtime': 1506502314.0, 'st_nlink': 1, 'st_mode': 33188, 'st_size': 31, 'st_gid': 1000, 'st_uid': 1000, 'st_atime': 1506502314.0}
+DEBUG:fuse.log-mixin:-> open /oneten (32768,)
+DEBUG:fuse.log-mixin:<- open 4
+DEBUG:fuse.log-mixin:-> read /oneten (4096L, 0, 4L)
+DEBUG:fuse.log-mixin:<- read 'oneoneoneoneoneoneoneoneoneone\n'
+DEBUG:fuse.log-mixin:-> getattr /oneten (None,)
+DEBUG:fuse.log-mixin:<- getattr {'st_ctime': 1506549163.5910938, 'st_mtime': 1506502314.0, 'st_nlink': 1, 'st_mode': 33188, 'st_size': 31, 'st_gid': 1000, 'st_uid': 1000, 'st_atime': 1506550568.0480227}
+DEBUG:fuse.log-mixin:-> flush /oneten (4L,)
+DEBUG:fuse.log-mixin:<- flush None
+DEBUG:fuse.log-mixin:-> release /oneten (4L,)
+DEBUG:fuse.log-mixin:<- release None
 
-cat > newfile
-hello world
-^D
-DEBUG:A2:-> path:/newfile flush(4L,)
-DEBUG:A2:-> path:/newfile release(4L,)
 
 
+
+subclassing passth .py
+cut and paste mem.py
+if file created new new mount
+call super if not created in paassthrugh.py
+double inheritance??!! prob not
 
