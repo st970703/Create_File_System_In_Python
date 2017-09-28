@@ -20,3 +20,4 @@ def main(mountpoint, root):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     main(sys.argv[2], sys.argv[1])
+
