@@ -15,7 +15,6 @@ if not hasattr(__builtins__, 'bytes'):
     bytes = str
 
 class myMemory(LoggingMixIn, Operations):
-    'Example myMemory filesystem. Supports only one level of files.'
 
     def __init__(self):
         self.files = {}
