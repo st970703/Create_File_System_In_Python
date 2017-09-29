@@ -90,6 +90,7 @@ class Memory(LoggingMixIn, Operations):
 
     def rename(self, old, new):
         self.files[new] = self.files.pop(old)
+        self.data[new] = self.data.pop(old)
 
     def rmdir(self, path):
         self.files.pop(path)

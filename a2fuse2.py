@@ -18,19 +18,16 @@ class A2Fuse2(LoggingMixIn, Passthrough):
 
     def __init__(self, root):
         super(self, root)
-        self.memory = memory()
+        # add memory field
+        self.memory = memory(self)
 
     def getattr(self, path, fh=None):
-        # in memory
-        if path not in self.files:
-            full_path = self._full_path(path)
-            st = os.lstat(full_path)
-            return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
-                                                            'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size',
-                                                            'st_uid'))
         # in user space
+        if (#in user space):
+            return self.getattr(self, path, fh=None)
         else:
-            return self.files[path]
+            # in memory
+            return self.memory.getattr(self, path, fh=None)
 
     def readdir(self, path, fh):
         pass
