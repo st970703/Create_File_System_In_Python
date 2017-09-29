@@ -8,6 +8,7 @@ import errno
 
 from fuse import FUSE, FuseOSError, Operations
 
+import logging
 
 class Passthrough(Operations):
     def __init__(self, root):
