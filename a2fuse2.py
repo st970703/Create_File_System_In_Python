@@ -23,52 +23,53 @@ class A2Fuse2(LoggingMixIn, Passthrough):
     def getattr(self, path, fh=None):
         # in user space
         if self.isSource(path):
-            return self.getattr(self, path, fh=None)
+            return super(A2Fuse2, self).getattr(self, path)
         else:
             # in memory
-            return self.memory.getattr(self, path, fh=None)
+            return self.memory.getattr(self, path)
 
     def readdir(self, path, fh):
-        if path in self:
-            return self.readdir(self, path, fh)
+        if self.isSource(path):
+            return super(A2Fuse2, self).readdir(self, path, fh)
         else:
             return self.memory.readdir(self, path, fh)
 
     def open(self, path, flags):
-        if path in self:
-            return self.open(self, path, flags)
+        if self.isSource(path):
+            return super(A2Fuse2, self).open(self, path, flags)
         else:
             return self.memory.open(self, path, flags)
 
     def create(self, path, mode, fi=None):
-        if path in self:
-            return self.create(self, path, mode)
+        if self.isSource(path):
+            return super(A2Fuse2, self).create(self, path, mode)
         else:
             return self.memory.create(self, path, mode)
 
     def unlink(self, path):
-        if path in self:
-            return self.unlink(self, path)
+        if self.isSource(path):
+            return super(A2Fuse2, self).unlink(self, path)
         else:
             return self.memory.unlink(self, path)
 
     def write(self, path, buf, offset, fh):
-        if path in self:
-            return self.write(self, path, buf, offset, fh)
+        if self.isSource(path):
+            return super(A2Fuse2, self).write(self, path, buf, offset, fh)
         else:
             return self.memory.write(self, path, buf, offset, fh)
 
     def read(self, path, length, offset, fh):
-        if path in self:
-            return self.read(self, path, buf, offset, fh)
+        if self.isSource(path):
+            return super(A2Fuse2, self).read(self, path, length, offset, fh)
         else:
-            return self.memory.read(self, path, buf, offset, fh)
+            return self.memory.read(self, path, length, offset, fh)
             # __init__, getattr, readdir
             # open, create, unlink
             # write, read
 
+    # helper
     def isSource(self, path):
-        if self.memory.files[path]:
+        if path in self.memory.files:
             return True
         else:
             return False
