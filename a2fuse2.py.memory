@@ -13,12 +13,12 @@ from passthrough import Passthrough
 from memory import Memory
 
 # elee353, 840454023
-class A2Fuse2(LoggingMixIn, Passthrough):
+class A2Fuse2(LoggingMixIn, Memory):
 
     def __init__(self, root):
-        Passthrough.__init__(self, root)
+        Memory.__init__(self, root)
         # add memory field
-        self.memory = Memory()
+        self.passthrough = Passthrough()
 
     def getattr(self, path, fh=None):
         # in user space
