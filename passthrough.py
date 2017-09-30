@@ -47,7 +47,6 @@ class Passthrough(Operations):
 
     def readdir(self, path, fh):
         full_path = self._full_path(path)
-
         dirents = ['.', '..']
         if os.path.isdir(full_path):
             dirents.extend(os.listdir(full_path))

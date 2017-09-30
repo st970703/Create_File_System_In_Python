@@ -23,16 +23,32 @@ class A2Fuse2(LoggingMixIn, Passthrough):
     def getattr(self, path, fh=None):
         # in user space
         if self.isSource(path):
-            return super(A2Fuse2, self).getattr(self, path)
+            full_path = self._full_path(path)
+            logging.debug("Path in getattr is: " + full_path)
+            st = os.lstat(full_path)
+            return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
+                                                            'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size',
+                                                            'st_uid'))
         else:
             # in memory
             return self.memory.getattr(self, path)
 
     def readdir(self, path, fh):
-        if self.isSource(path):
-            return super(A2Fuse2, self).readdir(self, path, fh)
-        else:
-            return self.memory.readdir(self, path, fh)
+        full_path = self._full_path(path)
+        logging.debug("READDIR fullpath is=" + full_path)
+        dirents = ['.', '..']
+        if os.path.isdir(full_path):
+            dirents.extend(os.listdir(full_path))
+        for r in dirents:
+            logging.debug("yield r " + r)
+            yield r
+        # in memory
+        # for x in self.memory.files:
+        #     if x != '/':
+        #         logging.debug("yield x " + x)
+        #         yield x[1:]
+        # self.memory.readdir(self, path, fh)
+        # yield (x[1:] for x in self.memory.files if x != '/')
 
     def open(self, path, flags):
         if self.isSource(path):
@@ -73,6 +89,21 @@ class A2Fuse2(LoggingMixIn, Passthrough):
             return True
         else:
             return False
+
+    # helper
+    def _full_path(self, partial):
+        if partial.startswith("/"):
+            partial = partial[1:]
+        path = os.path.join(self.root, partial)
+        return path
+
+    # Filesystem methods
+    # ==================
+    def access(self, path, mode):
+        full_path = self._full_path(path)
+        logging.debug('access(self, path, mode) '+full_path)
+        if not os.access(full_path, mode):
+            raise FuseOSError(errno.EACCES)
 
 def main(mountpoint, root):
     FUSE(A2Fuse2(root), mountpoint, nothreads=True, foreground=True)
