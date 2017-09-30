@@ -53,34 +53,45 @@ class A2Fuse2(LoggingMixIn, Passthrough):
                 yield x[1:]
 
     def open(self, path, flags):
+        # in user space
         if path not in self.memory.files:
-            return super(A2Fuse2, self).open(self, path, flags)
+            return super(A2Fuse2, self).open(path, flags)
+        # in memory
         else:
-            return self.memory.open(self, path, flags)
+            return self.memory.open(path, flags)
 
     def create(self, path, mode, fi=None):
+        # in user space
         if path not in self.memory.files:
-            return super(A2Fuse2, self).create(self, path, mode)
+            full_path = self._full_path(path)
+            return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
+        # in memory
         else:
-            return self.memory.create(self, path, mode)
+            return self.memory.create(path, mode)
 
     def unlink(self, path):
+        # in user space
         if path not in self.memory.files:
-            return super(A2Fuse2, self).unlink(self, path)
+            return super(A2Fuse2, self).unlink(path)
+        # in memory
         else:
-            return self.memory.unlink(self, path)
+            return self.memory.unlink(path)
 
     def write(self, path, buf, offset, fh):
+        # in user space
         if path not in self.memory.files:
-            return super(A2Fuse2, self).write(self, path, buf, offset, fh)
+            return super(A2Fuse2, self).write(path, buf, offset, fh)
+        # in memory
         else:
-            return self.memory.write(self, path, buf, offset, fh)
+            return self.memory.write(path, buf, offset, fh)
 
     def read(self, path, length, offset, fh):
+        # in user space
         if path not in self.memory.files:
-            return super(A2Fuse2, self).read(self, path, length, offset, fh)
+            return super(A2Fuse2, self).read(path, length, offset, fh)
+        # memory
         else:
-            return self.memory.read(self, path, length, offset, fh)
+            return self.memory.read(path, length, offset, fh)
 
     # __init__, getattr, readdir
     # open, create, unlink
@@ -93,6 +104,10 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         logging.debug('access(self, path, mode) '+full_path)
         if not os.access(full_path, mode):
             raise FuseOSError(errno.EACCES)
+
+    def create(self, path, mode, fi=None):
+        full_path = super(A2Fuse2, self)._full_path(path)
+        return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
 def main(mountpoint, root):
     FUSE(A2Fuse2(root), mountpoint, nothreads=True, foreground=True)
