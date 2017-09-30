@@ -22,7 +22,7 @@ class A2Fuse2(LoggingMixIn, Passthrough):
 
     def getattr(self, path, fh=None):
         # in user space
-        if path in self._full_path(path):
+        if self.isSource(path):
             return self.getattr(self, path, fh=None)
         else:
             # in memory
@@ -66,6 +66,12 @@ class A2Fuse2(LoggingMixIn, Passthrough):
             # __init__, getattr, readdir
             # open, create, unlink
             # write, read
+
+    def isSource(self, path):
+        if self.memory.files[path]:
+            return True
+        else:
+            return False
 
 def main(mountpoint, root):
     FUSE(A2Fuse2(root), mountpoint, nothreads=True, foreground=True)
