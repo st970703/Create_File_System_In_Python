@@ -7,6 +7,11 @@ import logging
 import os
 import sys
 import errno
+from collections import defaultdict
+from errno import ENOENT
+from stat import S_IFDIR, S_IFLNK, S_IFREG
+from sys import argv, exit
+from time import time
 
 from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
 from passthrough import Passthrough
@@ -16,8 +21,6 @@ from memory import Memory
 class A2Fuse2(LoggingMixIn, Passthrough):
 
     def __init__(self, root):
-        logging.debug('__init__(self, root) '+str(root))
-
         Passthrough.__init__(self, root)
         # add memory field
         self.memory = Memory()
@@ -62,9 +65,15 @@ class A2Fuse2(LoggingMixIn, Passthrough):
 
     def create(self, path, mode):
         # create in memory
-        full_path = super(A2Fuse2, self)._full_path(path)
-        logging.debug('create( '+str(self)+', '+(full_path)+', '+str(mode)+', fi=None):')
-        return self.memory.create(path, mode)
+	UID = os.getuid()
+	GID = os.getgid()
+        self.memory.files[path] = dict(st_mode=(S_IFREG | mode), st_nlink=1,
+				st_uid=UID, st_gid=GID,
+                                st_size=0, st_ctime=time(), st_mtime=time(),
+                                st_atime=time())
+
+        self.memory.fd += 1
+        return self.memory.fd
 
     def unlink(self, path):
         # in memory
