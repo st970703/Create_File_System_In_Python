@@ -12,6 +12,7 @@ import logging
 
 class Passthrough(Operations):
     def __init__(self, root):
+        logging.debug('__init__( '+str(self)+' , '+str(root)+') ')
         self.root = root
 
     # Helpers
@@ -119,6 +120,7 @@ class Passthrough(Operations):
             f.truncate(length)
 
     def flush(self, path, fh):
+        logging.debug('flush( '+str(self)+' , '+str(path)+' , '+str(fh))
         return os.fsync(fh)
 
     def release(self, path, fh):

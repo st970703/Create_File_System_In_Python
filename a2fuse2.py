@@ -16,7 +16,7 @@ from memory import Memory
 class A2Fuse2(LoggingMixIn, Passthrough):
 
     def __init__(self, root):
-        logging.debug('__init__(self, root) '+root)
+        logging.debug('__init__(self, root) '+str(root))
 
         Passthrough.__init__(self, root)
         # add memory field
@@ -68,26 +68,25 @@ class A2Fuse2(LoggingMixIn, Passthrough):
 
     def unlink(self, path):
         # in user space
-        if path not in self.memory.files:
+        if path in self.root:
             return super(A2Fuse2, self).unlink(path)
         # in memory
-        else:
+        if path in self.memory.files:
             return self.memory.unlink(path)
 
     def write(self, path, buf, offset, fh):
-        # in user space
-        if path not in self.memory.files:
-            return super(A2Fuse2, self).write(path, buf, offset, fh)
-        # in memory
-        else:
+        # write to memory
+        if path in self.memory.files:
             return self.memory.write(path, buf, offset, fh)
+        if path in self.root:
+            return super(A2Fuse2, self).write(path, buf, offset, fh)
 
     def read(self, path, length, offset, fh):
         # in user space
-        if path not in self.memory.files:
+        if path in self.root:
             return super(A2Fuse2, self).read(path, length, offset, fh)
         # memory
-        else:
+        if path in self.memory.files:
             return self.memory.read(path, length, offset, fh)
 
     # __init__, getattr, readdir
@@ -103,7 +102,11 @@ class A2Fuse2(LoggingMixIn, Passthrough):
             raise FuseOSError(errno.EACCES)
 
     def flush(self, path, fh):
-        return super(A2Fuse2, self).flush(path, fh)
+        # if file in memory, don't flush
+        if path in self.memory.files:
+            pass
+        else:
+            return super(A2Fuse2, self).flush(path, fh)
 
 def main(mountpoint, root):
     FUSE(A2Fuse2(root), mountpoint, nothreads=True, foreground=True)
