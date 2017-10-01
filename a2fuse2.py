@@ -60,14 +60,11 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         else:
             return self.memory.open(path, flags)
 
-    def create(self, path, mode, fi=None):
-        # in user space
-        if path not in self.memory.files:
-            full_path = self._full_path(path)
-            return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
-        # in memory
-        else:
-            return self.memory.create(path, mode)
+    def create(self, path, mode):
+        # create in memory
+        full_path = super(A2Fuse2, self)._full_path(path)
+        logging.debug('create( '+str(self)+', '+(full_path)+', '+str(mode)+', fi=None):')
+        return self.memory.create(path, mode)
 
     def unlink(self, path):
         # in user space
@@ -105,9 +102,8 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         if not os.access(full_path, mode):
             raise FuseOSError(errno.EACCES)
 
-    def create(self, path, mode, fi=None):
-        full_path = super(A2Fuse2, self)._full_path(path)
-        return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
+    def flush(self, path, fh):
+        return super(A2Fuse2, self).flush(path, fh)
 
 def main(mountpoint, root):
     FUSE(A2Fuse2(root), mountpoint, nothreads=True, foreground=True)

@@ -35,6 +35,7 @@ class Memory(LoggingMixIn, Operations):
         self.files[path]['st_gid'] = gid
 
     def create(self, path, mode):
+        logging.debug('memory - create( '+str(self)+', '+str(path)+', '+str(mode)+', fi=None):')
         self.files[path] = dict(st_mode=(S_IFREG | mode), st_nlink=1,
                                 st_size=0, st_ctime=time(), st_mtime=time(),
                                 st_atime=time())
