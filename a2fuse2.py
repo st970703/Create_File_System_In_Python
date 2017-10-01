@@ -67,27 +67,27 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         return self.memory.create(path, mode)
 
     def unlink(self, path):
-        # in user space
-        if path in self.root:
-            return super(A2Fuse2, self).unlink(path)
         # in memory
         if path in self.memory.files:
             return self.memory.unlink(path)
+        else:
+        # in user space
+            return super(A2Fuse2, self).unlink(path)
 
     def write(self, path, buf, offset, fh):
         # write to memory
         if path in self.memory.files:
             return self.memory.write(path, buf, offset, fh)
-        if path in self.root:
+        else:
             return super(A2Fuse2, self).write(path, buf, offset, fh)
 
     def read(self, path, length, offset, fh):
-        # in user space
-        if path in self.root:
-            return super(A2Fuse2, self).read(path, length, offset, fh)
         # memory
         if path in self.memory.files:
             return self.memory.read(path, length, offset, fh)
+        # in user space
+        else:
+            return super(A2Fuse2, self).read(path, length, offset, fh)
 
     # __init__, getattr, readdir
     # open, create, unlink
@@ -98,8 +98,8 @@ class A2Fuse2(LoggingMixIn, Passthrough):
     def access(self, path, mode):
         full_path = super(A2Fuse2, self)._full_path(path)
         logging.debug('access(self, path, mode) '+full_path)
-        if not os.access(full_path, mode):
-            raise FuseOSError(errno.EACCES)
+        # if not os.access(full_path, mode):
+        #     raise FuseOSError(errno.EACCES)
 
     def flush(self, path, fh):
         # if file in memory, don't flush
