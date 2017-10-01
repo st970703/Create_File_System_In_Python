@@ -98,6 +98,14 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         else:
             return super(A2Fuse2, self).read(path, length, offset, fh)
 
+    def release(self, path, fh):
+        # in memory
+        if path in self.memory.files:
+	        return self.memory.release(path, fh)
+	# in user space 
+	else:
+		return super(A2Fuse2, self).release(path, fh)
+
     # __init__, getattr, readdir
     # open, create, unlink
     # write, read
