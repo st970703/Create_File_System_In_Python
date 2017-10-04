@@ -65,8 +65,8 @@ class A2Fuse2(LoggingMixIn, Passthrough):
 
     def create(self, path, mode):
         # create in memory
-	    UID = os.getuid()
-	    GID = os.getgid()
+	UID = os.getuid()
+	GID = os.getgid()
         self.memory.files[path] = dict(st_mode=(S_IFREG | mode), st_nlink=1,
 				st_uid=UID, st_gid=GID,
                                 st_size=0, st_ctime=time(), st_mtime=time(),
@@ -102,9 +102,9 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         # in memory
         if path in self.memory.files:
 	        return self.memory.release(path, fh)
-	    # in user space
-	    else:
-		    return super(A2Fuse2, self).release(path, fh)
+	# in user space
+	else:
+		return super(A2Fuse2, self).release(path, fh)
 
     # __init__, getattr, readdir
     # open, create, unlink
