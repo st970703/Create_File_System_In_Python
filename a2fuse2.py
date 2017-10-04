@@ -102,7 +102,7 @@ class A2Fuse2(LoggingMixIn, Passthrough):
         # in memory
         if path in self.memory.files:
 	        return self.memory.release(path, fh)
-	# in user space 
+	# in user space
 	else:
 		return super(A2Fuse2, self).release(path, fh)
 
@@ -124,6 +124,13 @@ class A2Fuse2(LoggingMixIn, Passthrough):
             pass
         else:
             return super(A2Fuse2, self).flush(path, fh)
+
+    # fix touch
+    def utimens(self, path, times=None):
+        if path in self.memory.files:
+            pass
+        else:
+            return super(A2Fuse2, self).utimens(path)
 
 def main(mountpoint, root):
     FUSE(A2Fuse2(root), mountpoint, nothreads=True, foreground=True)
